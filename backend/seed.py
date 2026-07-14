@@ -9,13 +9,16 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app.database import engine, SessionLocal, Base
 from app import models
+from app.config import settings
+from urllib.parse import urlparse, unquote
 
-# PostgreSQL credentials
-DB_HOST = "localhost"
-DB_PORT = 9571
-DB_USER = "postgres"
-DB_PASSWORD = "Utkarsh@9571"
-DB_NAME = "aivoa"
+# Parse PostgreSQL credentials from DATABASE_URL
+db_url = urlparse(settings.DATABASE_URL)
+DB_USER = db_url.username or "postgres"
+DB_PASSWORD = unquote(db_url.password) if db_url.password else ""
+DB_HOST = db_url.hostname or "localhost"
+DB_PORT = db_url.port or 9571
+DB_NAME = db_url.path.lstrip('/') or "aivoa"
 
 def ensure_database_exists():
     print(f"Connecting to default 'postgres' database on port {DB_PORT}...")

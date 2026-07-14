@@ -4,7 +4,7 @@ from pydantic import Field
 
 class Settings(BaseSettings):
     DATABASE_URL: str = Field(
-        default="postgresql://postgres:Utkarsh%409571@localhost:9571/aivoa",
+        default="postgresql://postgres:postgres@localhost:5432/aivoa",
         description="PostgreSQL connection string"
     )
     GROQ_API_KEY: str = Field(
