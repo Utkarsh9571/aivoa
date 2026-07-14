@@ -40,8 +40,9 @@ def run_verification():
         
         active_id = result["current_interaction_id"]
         print(f"\nSaved Interaction ID: #{active_id}")
-        print("Traced Tool Call args:")
-        print(json.dumps(result["tool_calls"][0]["args"], indent=2))
+        tool_call = result["tool_calls"][0]
+        args = tool_call.args if hasattr(tool_call, "args") else tool_call["args"]
+        print(json.dumps(args, indent=2))
         
         # Verify DB changes
         interaction = db.query(models.Interaction).filter(models.Interaction.id == active_id).first()
