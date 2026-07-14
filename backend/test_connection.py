@@ -1,7 +1,7 @@
 import sys
 import psycopg2
 
-passwords = ["Zoniraz@2310", "zoniraz@2310", "utkarsh@9571", "postgres", "admin", "root", "123456", "password", ""]
+passwords = ["postgres", "admin", "root", "123456", "password", ""]
 success = False
 
 for pwd in passwords:

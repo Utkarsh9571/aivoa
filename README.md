@@ -108,7 +108,7 @@ The backend agent defines six discrete tools in [tools.py](file:///c:/Users/leno
    ```bash
    cp backend/.env.example backend/.env
    ```
-2. Configure your environment credentials in `backend/.env`. Note that on this machine, PostgreSQL is configured on port `9571` with the password `Utkarsh@9571` (the default `DATABASE_URL` is set accordingly).
+2. Configure your environment credentials in `backend/.env`. Note that on this machine, PostgreSQL is configured on port `9571` with the password (the default `DATABASE_URL` is set accordingly).
 3. Activate the virtual environment and initialize the database (creates tables, drops old, and seeds records):
    ```bash
    # Create virtualenv and install requirements (if not done)
