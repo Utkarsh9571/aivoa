@@ -73,6 +73,7 @@ body {
   letter-spacing: -0.025em;
   background: linear-gradient(135deg, #a5b4fc, #6366f1);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -986,6 +987,7 @@ textarea.form-control {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
