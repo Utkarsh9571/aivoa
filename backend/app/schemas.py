@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Any, Optional
 from datetime import date, time
+import datetime
 
 # Tool Inputs Schemas
 class LogInteractionInput(BaseModel):
@@ -79,7 +80,7 @@ class ManualCreateInteractionRequest(BaseModel):
 
 class ManualEditInteractionRequest(BaseModel):
     interaction_type: Optional[str] = None
-    date: Optional[date] = None
+    date: Optional[datetime.date] = None
     time: Optional[str] = None
     attendees: Optional[str] = None
     topics_discussed: Optional[str] = None
@@ -89,6 +90,20 @@ class ManualEditInteractionRequest(BaseModel):
     products: Optional[List[int]] = None
     materials: Optional[List[int]] = None
     samples: Optional[List[Dict[str, Any]]] = None # [{'id': 1, 'quantity': 2}]
+
+    @field_validator('date', mode='before')
+    @classmethod
+    def empty_date_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
+    @field_validator('time', mode='before')
+    @classmethod
+    def empty_time_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
 class HCPResponse(BaseModel):
     id: int

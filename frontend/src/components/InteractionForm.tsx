@@ -91,6 +91,14 @@ export const InteractionForm: React.FC = () => {
       setErrorMessage("Please select a Healthcare Professional (HCP).");
       return;
     }
+    if (!formState.date) {
+      setErrorMessage("Please select a valid date.");
+      return;
+    }
+    if (!formState.time) {
+      setErrorMessage("Please select a valid time.");
+      return;
+    }
 
     try {
       // Pack parameters

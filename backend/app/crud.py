@@ -3,6 +3,25 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app import models, schemas
 
+def parse_time_string(time_str: str) -> datetime.time:
+    for fmt in ("%H:%M", "%H:%M:%S", "%I:%M %p", "%I:%M%p"):
+        try:
+            return datetime.datetime.strptime(time_str, fmt).time()
+        except ValueError:
+            continue
+    raise ValueError(f"Time data '{time_str}' does not match any expected formats.")
+
+def parse_date_string(date_str: str) -> datetime.date:
+    try:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        for fmt in ("%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+            try:
+                return datetime.datetime.strptime(date_str, fmt).date()
+            except ValueError:
+                continue
+        raise ValueError(f"Date data '{date_str}' does not match any expected formats.")
+
 # Helper to resolve HCP by name (fuzzy case-insensitive match)
 def resolve_hcp(db: Session, name: str) -> models.HCP:
     # Try exact match first
@@ -104,25 +123,11 @@ def log_interaction_transactional(db: Session, data: schemas.LogInteractionInput
         # 2. Parse Date and Time
         parsed_date = datetime.date.today()
         if data.date:
-            try:
-                parsed_date = datetime.datetime.strptime(data.date, "%Y-%m-%d").date()
-            except ValueError:
-                # Try reading in DD-MM-YYYY or other formats
-                for fmt in ("%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"):
-                    try:
-                        parsed_date = datetime.datetime.strptime(data.date, fmt).date()
-                        break
-                    except ValueError:
-                        continue
+            parsed_date = parse_date_string(data.date)
         
         parsed_time = datetime.datetime.now().time()
         if data.time:
-            for fmt in ("%H:%M", "%H:%M:%S", "%I:%M %p", "%I:%M%p"):
-                try:
-                    parsed_time = datetime.datetime.strptime(data.time, fmt).time()
-                    break
-                except ValueError:
-                    continue
+            parsed_time = parse_time_string(data.time)
         
         # 3. Create Interaction
         interaction = models.Interaction(
@@ -250,25 +255,10 @@ def edit_interaction_transactional(db: Session, data: schemas.EditInteractionInp
             whitelisted_updates["follow_up_actions"] = data.follow_up_actions
             
         if data.date is not None:
-            try:
-                parsed_date = datetime.datetime.strptime(data.date, "%Y-%m-%d").date()
-                whitelisted_updates["date"] = parsed_date
-            except ValueError:
-                # Try other formats
-                for fmt in ("%d-%m-%Y", "%d/%m/%Y"):
-                    try:
-                        whitelisted_updates["date"] = datetime.datetime.strptime(data.date, fmt).date()
-                        break
-                    except ValueError:
-                        continue
+            whitelisted_updates["date"] = parse_date_string(data.date)
                         
         if data.time is not None:
-            for fmt in ("%H:%M", "%H:%M:%S", "%I:%M %p", "%I:%M%p"):
-                try:
-                    whitelisted_updates["time"] = datetime.datetime.strptime(data.time, fmt).time()
-                    break
-                except ValueError:
-                    continue
+            whitelisted_updates["time"] = parse_time_string(data.time)
 
         # Apply whitelisted updates to database object
         for field, val in whitelisted_updates.items():
@@ -422,7 +412,7 @@ def manual_create_interaction(db: Session, req: schemas.ManualCreateInteractionR
         if not hcp:
             raise ValueError(f"HCP ID {req.hcp_id} not found.")
             
-        parsed_time = datetime.datetime.strptime(req.time, "%H:%M").time()
+        parsed_time = parse_time_string(req.time)
         
         interaction = models.Interaction(
             hcp_id=req.hcp_id,
@@ -510,7 +500,7 @@ def manual_edit_interaction(db: Session, interaction_id: int, req: schemas.Manua
         if req.date is not None:
             interaction.date = req.date
         if req.time is not None:
-            interaction.time = datetime.datetime.strptime(req.time, "%H:%M").time()
+            interaction.time = parse_time_string(req.time)
         if req.attendees is not None:
             interaction.attendees = req.attendees
         if req.topics_discussed is not None:
