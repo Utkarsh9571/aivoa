@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from app import models, schemas
@@ -231,7 +232,7 @@ def edit_interaction_transactional(db: Session, data: schemas.EditInteractionInp
             raise ValueError("No active or previous interaction could be found to modify.")
             
         # Whitelisted fields update
-        whitelisted_updates = {}
+        whitelisted_updates: dict[str, Any] = {}
         
         if data.observed_sentiment is not None:
             sentiment = data.observed_sentiment.strip()
@@ -347,7 +348,7 @@ def get_hcp_context(db: Session, hcp_name: str) -> dict:
     }
 
 
-def search_interactions(db: Session, query: str = None, limit: int = 5) -> list:
+def search_interactions(db: Session, query: str | None = None, limit: int | None = 5) -> list:
     """
     Searches the history of interactions.
     """

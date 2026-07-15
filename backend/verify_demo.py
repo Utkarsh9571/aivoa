@@ -1,9 +1,5 @@
 import sys
-import os
 import json
-
-# Add backend/ to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app.agent.graph import execute_agent
 from app.database import SessionLocal
@@ -19,6 +15,8 @@ def run_verification():
     try:
         # Check initial stock
         sample = db.query(models.Sample).filter(models.Sample.name == "OncoBoost 50mg Sample Pack").first()
+        if sample is None:
+            raise ValueError("Sample 'OncoBoost 50mg Sample Pack' not found in database")
         initial_stock = sample.stock_quantity
         print(f"Initial OncoBoost Sample Stock: {initial_stock}")
         
@@ -53,6 +51,8 @@ def run_verification():
         
         # Verify Stock Change (SCENARIO 4 part 1)
         db.refresh(sample)
+        if sample is None:
+            raise ValueError("Sample not found after refresh")
         print(f"Updated OncoBoost Sample Stock: {sample.stock_quantity}")
         assert sample.stock_quantity == initial_stock - 3, "Stock was not deducted correctly"
         print("[OK] Scenario 1 & 4 (Logging & Stock Change) verified successfully!")
